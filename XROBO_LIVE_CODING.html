@@ -180,6 +180,24 @@
   body.panel-collapsed #left{ flex:1 1 100%; }
 
   /* ───────────── 모달(멀티 서보 설정) ───────────── */
+  /* === modal speedbox (delay) select styling: smaller arrow & spacing === */
+#servoModal .speedbox { position: relative; }
+#servoModal .speedbox select {
+  -webkit-appearance: none; appearance: none;
+  width: calc(100% - 10px); height: 100%;
+  border: 0; outline: none; background: transparent;
+  text-align: center; color: #111827; font-size: calc(12px * var(--servoScale));
+  padding-right: 18px; /* space for arrow */
+}
+#servoModal .speedbox::after{
+  content: '▾';
+  position: absolute;
+  right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: calc(10px * var(--servoScale));
+  color: #6b7280; pointer-events: none;
+}
+
+  
   .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;
           background:rgba(0,0,0,.45); z-index:10000; }
   .modal.show{ display:flex; }
@@ -234,10 +252,15 @@
     flex:1 1 0; height:100%; border-radius:7px; background:#ffffff; border:1px solid #d1d5db;
     display:flex; align-items:center; justify-content:center;
   }
-  .numbox input, .speedbox select{
+  .numbox input, .speedbox input, .speedbox select{
     width:calc(100% - 10px); height:100%; border:0; outline:none; background:transparent; color:#111827; text-align:center;
     font-size:calc(12px * var(--servoScale));
   }
+  /* number input spinner 제거 (speedbox) */
+  .speedbox input::-webkit-outer-spin-button,
+  .speedbox input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .speedbox input{ -moz-appearance:textfield; }
+
   .dial-svg{
     position:absolute; left:50%; top:calc(50% + 20px * var(--servoScale)); transform:translate(-50%,-50%);
     width:calc(56px * var(--servoScale)); height:calc(56px * var(--servoScale));
@@ -404,6 +427,29 @@
   #xrobo-kp4x4-v14 .ok{ background:#2563eb; color:#fff; }
   #xrobo-kp4x4-v14 .cancel{ background:#6b7280; color:#fff; }
 </style>
+<style id="xrobo-dial-select-align">
+/* === Dial speed/dropdown visual alignment === */
+.xrobo-dial-pop .speedbox select{
+  -webkit-appearance: none;
+  appearance: none;
+  background:#fff;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  padding:6px 28px 6px 10px;
+  font-size:14px;
+  line-height:1.3;
+  height:32px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+.xrobo-dial-pop .speedbox{ position: relative; }
+.xrobo-dial-pop .speedbox::after{
+  content: '▾';
+  position: absolute;
+  right: 10px; top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 12px; color:#4b5563;
+}
+</style>
 </head>
 <body>
   <!-- 헤더 -->
@@ -481,7 +527,7 @@
       </block>      <block type="servo_in"><field name="OUT">OUT1</field>
         <value name="ANG"><shadow type="math_number"><field name="NUM">90</field></shadow></value></block>
       <block type="servo_slow"><field name="OUT">OUT1</field>
-        <value name="DELAY"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
+        <value name="DELAY"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
         <value name="ANG"><shadow type="math_number"><field name="NUM">90</field></shadow></value></block>
 
       <block type="melody"><field name="PITCH">C4</field>
@@ -662,8 +708,8 @@ Blockly.defineBlocksWithJsonArray([
     "message0":"멀티 서보 (개수: %1)  %2 %3",
     "args0":[
       { "type":"field_label_serializable", "name":"COUNT", "text":"0" },
-      { "type":"field_image", "name":"CFG", "src":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='24' viewBox='0 0 64 24'><rect x='0' y='0' width='64' height='24' rx='6' ry='6' fill='%238b5e34'/><text x='32' y='16' text-anchor='middle' font-size='12' font-weight='700' fill='%23ffffff'>설정</text></svg>", "width":64, "height":24, "alt":"설정" },
-      { "type":"field_image", "name":"DUP", "src":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='24' viewBox='0 0 64 24'><rect x='0' y='0' width='64' height='24' rx='6' ry='6' fill='%238b5e34'/><text x='32' y='16' text-anchor='middle' font-size='12' font-weight='700' fill='%23ffffff'>복사</text></svg>", "width":64, "height":24, "alt":"복사" }
+      { "type":"field_image", "name":"CFG", "src":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='24' viewBox='0 0 64 24'><rect x='0' y='0' width='64' height='24' rx='6' ry='6' fill='%238b5e34'/><text x='32' y='16' text-anchor='middle' font-size='12' font-weight='700' fill='%23ffffff'>설정</text></svg>", "width":83, "height": 31, "alt":"설정" },
+      { "type":"field_image", "name":"DUP", "src":"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='24' viewBox='0 0 64 24'><rect x='0' y='0' width='64' height='24' rx='6' ry='6' fill='%238b5e34'/><text x='32' y='16' text-anchor='middle' font-size='12' font-weight='700' fill='%23ffffff'>복사</text></svg>", "width":83, "height": 31, "alt":"복사" }
     ],
     "previousStatement":null, "nextStatement":null, "colour": 30,
     "extensions": ["multi_servo_cfg"]
@@ -687,7 +733,7 @@ function duplicateMultiServoBlock(srcBlock){
   const cfgOld = multiServoConfigs.get(srcBlock.id);
   const cfgNew = cloneConfigDeep(cfgOld || {
     bgUrl:'',
-    units:[{name:'S1', angle:90, speed:10, power:true, x:12, y:56}]
+    units:[{name:'S1', angle:90, speed:0, power:true, x:12, y:56}]
   });
   const pos = srcBlock.getRelativeToSurfaceXY();
   const newBlock = ws.newBlock('multi_servo');
@@ -1467,10 +1513,10 @@ function collectUnitsSnapshot(){
     nodes.forEach(u=>{
       const name = u.dataset.name || 'S1';
       const inp  = u.querySelector('.numbox input');
-      const spd  = u.querySelector('.speedbox select');
+      const spd  = u.querySelector('.speedbox input, .speedbox select');
       const on   = !u.querySelector('.pwr-top')?.classList.contains('off');
       const ang  = clampAng180(Number(inp?.value)||90);
-      const sp   = Math.max(0, Math.min(20, Number(spd?.value)||10));
+      const sp   = (function(v){let n=parseInt(v,10); if(Number.isNaN(n)) n=0; return Math.max(0, Math.min(20, n));})(spd?.value);
       list.push({name, angle:ang, speed:sp, power:on});
     });
   }catch(_){}
@@ -1548,12 +1594,13 @@ handle.appendChild(pwrTop); unit.appendChild(handle);
   const inp = document.createElement('input'); inp.type='number'; inp.min='0'; inp.max='180'; inp.step='1'; inp.value=String(clampAng180(state.angle ?? 90)); inp.title='서보 각도(0~180°)';
   num.appendChild(inp);
   const spdBox = document.createElement('div'); spdBox.className='speedbox';
-  const spdSel = document.createElement('select');
-  for(let i=0;i<=20;i++){ const o=document.createElement('option'); o.value=String(i); o.textContent=String(i); spdSel.appendChild(o); }
-  spdSel.value = String(Math.max(0, Math.min(20, state.speed ?? 10)));
-  spdSel.title='이동 속도(0~20: 클수록 빠름)';
-  spdBox.appendChild(spdSel);
-  row.append(num, spdBox); unit.appendChild(row);
+const spdSel = document.createElement('select');
+for(let i=0;i<=20;i++){ const o=document.createElement('option'); o.value=String(i); o.textContent=String(i); spdSel.appendChild(o); }
+spdSel.value = String(Math.max(0, Math.min(20, (state.speed ?? 0))));
+spdSel.title='이동 속도(0~20: 클수록 빠름)';
+spdSel.addEventListener('change', rtMarkDirty);
+spdBox.appendChild(spdSel);
+row.append(num, spdBox); unit.appendChild(row);
 
   const svgNS='http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS,'svg');
@@ -1634,7 +1681,7 @@ handle.appendChild(pwrTop); unit.appendChild(handle);
     }
   });
   state.els.spdSel.addEventListener('change', ()=>{
-    state.speed = Math.max(0, Math.min(20, parseInt(state.els.spdSel.value||'10',10)||10));
+    state.speed = Math.max(0, Math.min(20, parseInt(state.els.spdSel.value||'10',10)|| 0));
     render();
     rtMarkDirty();
   });
@@ -1729,7 +1776,7 @@ function openServoModal(block){
   bgUrlInput.value = cfg.bgUrl || '';
 
   if(cfg.units.length === 0){
-    cfg.units.push({name:'S1', angle:90, speed:10, power:true, x:12, y:56});
+    cfg.units.push({name:'S1', angle:90, speed:0, power:true, x:12, y:56});
   }
   cfg.units.forEach(u => createUnit(u));
 
@@ -1744,12 +1791,12 @@ function closeServoModalAndSave(){
   cfg.units = Array.from(stageEl.querySelectorAll('.unit')).map(u=>{
     const name = u.dataset.name;
     const inp = u.querySelector('.numbox input');
-    const spd = u.querySelector('.speedbox select');
+    const spd = u.querySelector('.speedbox input, .speedbox select');
     const on  = !u.querySelector('.pwr-top').classList.contains('off');
     return {
       name,
       angle: clampAng180(Number(inp.value)||90),
-      speed: Math.max(0, Math.min(20, Number(spd.value)||10)),
+      speed: Math.max(0, Math.min(20, (function(v){var n=parseInt(v,10);return Number.isNaN(n)?0:n;})(spd?.value))),
       power: on,
       x: parseInt(u.style.left)||12,
       y: parseInt(u.style.top)||56
@@ -1773,7 +1820,7 @@ addServoBtn.addEventListener('click', ()=>{
   const baseX = 12, baseY = 56, stepX = Math.round(16*UNIT_SCALE), stepY = Math.round(20*UNIT_SCALE);
   const x = baseX + (unitSeq%20)*stepX; unitSeq++;
   const y = baseY + Math.floor(unitSeq/20)*stepY;
-  const st = {name, angle:90, speed:10, power:true, x, y};
+  const st = {name, angle:90, speed:0, power:true, x, y};
   cfg.units.push(st);
   createUnit(st);
 });
@@ -1840,7 +1887,7 @@ function buildProjectPayload(){
   const entries = {};
   for(const [k,v] of multiServoConfigs.entries()){
     entries[k] = { bgUrl: v.bgUrl||'', units: (v.units||[]).map(u=>({
-      name: u.name, angle: clampAng180(u.angle), speed: Math.max(0, Math.min(20, u.speed||10)), power: !!u.power, x: u.x, y: u.y
+      name: u.name, angle: clampAng180(u.angle), speed: Math.max(0, Math.min(20, u.speed|| 0)), power: !!u.power, x: u.x, y: u.y
     }))};
   }
 
@@ -2046,7 +2093,7 @@ function openSingleServoDialByOut(outName, initAngle){
     currentBlock = null;                 // 저장/닫기 로직이 프로젝트 데이터에 손대지 않도록
     stageEl.innerHTML = '';              // 기존 유닛 임시 비움
     stageEl.style.backgroundImage = '';  // 배경 제거(보다 집중)
-    const st = {name:servoName, angle: (Number(initAngle)||90), speed:10, power:true, x:12, y:56};
+    const st = {name:servoName, angle: (Number(initAngle)||90), speed:0, power:true, x:12, y:56};
     createUnit(st);
 
     // 모달 표시 + 실시간 틱
@@ -2082,7 +2129,7 @@ function openSingleServoDialByOut(outName, initAngle){
     blk.init = function(){
       oldInit.call(this);
       try{
-        const img = new Blockly.FieldImage(__xrobo_svg_text_btn('다이얼'), 56, 24, '다이얼');
+        const img = new Blockly.FieldImage(__xrobo_svg_text_btn('다이얼'), 83, 31, '다이얼');
         const that = this;
         img.setOnClickHandler(function(){
           // 각도 초기값(있다면)도 전달
@@ -2125,6 +2172,25 @@ function openSingleServoDialByOut(outName, initAngle){
     lb.addEventListener('click', loadProject);
     lb.dataset.boundLoad = '1';
   }
+
+/* --- Android: stronger hook for multi-servo delay inputs so keypad stays open --- */
+(function(){
+  if(!/Android/i.test(navigator.userAgent||'')) return;
+  function tryOpen(e){
+    var t = e.target;
+    if(!t || !(t.matches && (t.matches('#servoModal .speedbox input') || t.matches('#boardStage .speedbox input')))) return;
+    if(e.cancelable !== false){ e.preventDefault(); }
+    e.stopPropagation();
+    try{ t.blur(); }catch(_){}
+    try{ t.setAttribute('inputmode','none'); t.setAttribute('readonly','readonly'); }catch(_){}
+    try{
+      if(typeof openForInput === 'function'){ requestAnimationFrame(function(){ openForInput(t, null); }); }
+    }catch(_){}
+    setTimeout(function(){ try{ t.removeAttribute('readonly'); }catch(_){} }, 200);
+  }
+  document.addEventListener('pointerdown', tryOpen, true);
+  document.addEventListener('touchstart', tryOpen, {capture:true, passive:false});
+})();
 })();
 </script>
 
@@ -2272,7 +2338,7 @@ function openSingleServoDialByOut(outName, initAngle){
       const o=document.createElement('option'); o.value=String(i); o.textContent=String(i);
       spdSel.appendChild(o);
     }
-    spdSel.value = "10";
+    spdSel.value = "0";
 // 초기 지연시간(DELAY) 블록값을 읽어 반영 (servo_slow일 때)
 (function(){
   try{
@@ -2325,7 +2391,7 @@ liveBtn.addEventListener('click', function(){
 });
 
 
-    const state = { angle: clamp(parseInt(inp.value||'90',10)||90,0,180), speed: 10, dragging:false, lastScrDeg:90 };
+    const state = { angle: clamp(parseInt(inp.value||'90',10)||90,0,180), speed: 0, dragging:false, lastScrDeg:90 };
 
     function valToScreenDeg(v){ return clamp(v,0,180); } // 0~180 그대로
     function render(){
@@ -2357,7 +2423,7 @@ liveBtn.addEventListener('click', function(){
       }
     });
     spdSel.addEventListener('change', ()=>{
-      state.speed = clamp(parseInt(spdSel.value||'10',10)||10,0,20);
+      state.speed = clamp(parseInt(spdSel.value||'10',10)|| 0,0,20);
       commitThrottled();
     });
 
@@ -3325,6 +3391,19 @@ setTimeout(()=>document.addEventListener('click', closer, true), 0);
       openForInput(t, null);
       const onBlur = ()=>{ try{ commit(); }catch(_){ cancel(); } t.removeEventListener('blur', onBlur); };
       t.addEventListener('blur', onBlur);
+    } else {
+      // Android 전용: 멀티서보 모달 내부 지연(speed) 입력에도 커스텀 숫자패드 연결
+      try{
+        const uaOk = /Android/i.test(navigator.userAgent||'');
+        if(uaOk && t.matches('#servoModal .speedbox input, #boardStage .speedbox input')){
+          // 기본 키보드가 뜨지 않도록 잠시 readonly 후 해제 + inputmode 힌트
+          try{ t.setAttribute('inputmode','none'); t.setAttribute('autocomplete','off'); t.setAttribute('autocorrect','off'); }catch(_){}
+          try{ t.setAttribute('readonly','readonly'); setTimeout(()=>{ try{ t.removeAttribute('readonly'); }catch(_){ } }, 0); }catch(_){}
+          openForInput(t, null);
+          const onBlur = ()=>{ try{ commit(); }catch(_){ cancel(); } t.removeEventListener('blur', onBlur); };
+          t.addEventListener('blur', onBlur);
+        }
+      }catch(_){}
     }
   }, true);
 
