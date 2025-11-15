@@ -81,11 +81,17 @@
     user-select:none;
   }
   #connectToggle{ background:#2563eb; color:#fff; }
-  #rtToggle.on{ background:#2563eb; color:#fff; }
-  #rtToggle:not(.on){ background:#f59e0b; color:#fff; }
+  .rt-toggle.on{ background:#2563eb; color:#fff; }
+  .rt-toggle:not(.on){ background:#f59e0b; color:#fff; }
   #runToggle{ background:#16a34a; color:#fff; }
   #fsBtn{ background:#111827; color:#fff; }
 
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap: calc(var(--gap) * var(--uiScale));
+    align-items:center;
+  }
   .state{
     display:inline-flex; align-items:center; gap:calc(6px * var(--uiScale));
     height: calc(var(--btnH) * var(--uiScale));
@@ -296,7 +302,7 @@
   }
   .trash-top:hover{ background:#ef4444; border-color:#b91c1c; color:#fff; }
 
-  /* === 파일 드롭다운 === */
+  /* === 드롭다운 === */
   .dropdown{ position:relative; }
   .dropdown .menu{
     position:absolute; right:0; top:calc(100% + 4px);
@@ -316,11 +322,8 @@
 
 </style>
 
-<!-- injected: file button color + inline dial popover styles -->
+<!-- injected: inline dial popover styles -->
 <style id="xrobo-inline-dial-style">
-  /* 회색 '파일' 드롭다운 버튼 */
-  #fileBtn{ background:#6b7280 !important; color:#ffffff !important; }
-
   /* 인라인 서보 다이얼 팝오버 */
   .xrobo-dial-pop{
     position:absolute; inset:auto auto auto auto;
@@ -458,27 +461,23 @@
       <div class="title">XROBO BLE</div>
       <div class="spacer"></div>
 
-      <!-- 저장/불러오기 버튼 -->
-            <!-- 파일 드롭다운 -->
-      <div class="dropdown" id="fileDropdown">
-        <button id="fileBtn" class="btn" title="파일">파일 ▾</button>
-        <div id="fileMenu" class="menu" role="menu" aria-hidden="true">
-          <button data-cmd="new" role="menuitem">새로만들기</button>
-          <button data-cmd="save" role="menuitem">저장하기</button>
-          <button data-cmd="load" role="menuitem">불러오기</button>
+      <div class="controls" role="group" aria-label="주요 제어">
+        <button id="newBtn" class="btn" type="button">새 프로젝트</button>
+        <button id="saveBtn" class="btn" type="button">저장하기</button>
+        <button id="loadBtn" class="btn" type="button">불러오기</button>
+        <button id="rtToggle" class="btn rt-toggle" type="button" aria-pressed="false">실시간: OFF</button>
+        <span class="state" aria-live="polite"><span id="statusDot" class="badgeDot off">off</span></span>
+        <div class="dropdown" id="connectDropdown">
+          <button id="connectToggle" class="btn" type="button" aria-haspopup="true" aria-expanded="false">연결 ▾</button>
+          <div id="connectMenu" class="menu" role="menu" aria-hidden="true">
+            <button data-mode="usb" role="menuitem">USB</button>
+            <button data-mode="ble" role="menuitem">블루투스</button>
+          </div>
         </div>
+        <button id="runToggle" class="btn" type="button" disabled>▶ 실행</button>
+        <button id="copyCodeBtn" class="btn" type="button">코드 복사</button>
+        <button id="fsBtn" class="btn" type="button" title="전체화면">전체화면</button>
       </div>
-      
-
-      <span class="state"><span id="statusDot" class="badgeDot off">off</span></span>
-      <div class="dropdown" id="connectDropdown"><button id="connectToggle" class="btn">연결 ▾</button>
-  <div id="connectMenu" class="menu" role="menu" aria-hidden="true">
-    <button data-mode="usb" role="menuitem">USB</button>
-    <button data-mode="ble" role="menuitem">블루투스</button>
-  </div>
-</div>
-      <button id="runToggle" class="btn" disabled>▶ 실행</button>
-      <button id="fsBtn" class="btn" title="전체화면">전체화면</button>
     </div>
   </header>
 
@@ -588,7 +587,7 @@
       <div class="modal-head">
         <div id="modalTitle" class="title">멀티 서보 설정</div>
         <div class="sp"></div>
-        <button id="rtToggle" class="btn" title="실시간 전송 토글">실시간: OFF</button>
+        <button id="rtModalToggle" class="btn rt-toggle" title="실시간 전송 토글" type="button" aria-pressed="false">실시간: OFF</button>
         <button id="addServoBtn" class="btn">+ 서보 추가</button>
         <input id="bgUrl" class="btn" style="width:260px;text-align:left" placeholder="배경 이미지 URL (선택)">
         <button id="applyBg" class="btn">배경 적용</button>
@@ -1260,17 +1259,42 @@ let connectToken=0;
 let runToken=0;
 let isConnected=false, isRunning=false;
 let realTime=false; // 실시간 전송
+let servoModal=null;
 
 const $=id=>document.getElementById(id);
 const log=m=>{ const L=$('log'); L.textContent+=m+"\n"; L.scrollTop=L.scrollHeight; };
 const btnConnect=$('connectToggle'), btnRun=$('runToggle'), dot=$('statusDot');
-const btnRt=$('rtToggle');
+const btnNew=$('newBtn');
+const btnCopy=$('copyCodeBtn');
+const rtToggleButtons=new Set();
 const enc=s=>new TextEncoder().encode(s);
+
+function syncRealtimeButton(btn){
+  if(!btn) return;
+  btn.classList.toggle('on', realTime);
+  btn.classList.toggle('off', !realTime);
+  btn.textContent = realTime ? '실시간: ON' : '실시간: OFF';
+  btn.setAttribute('aria-pressed', realTime ? 'true' : 'false');
+}
+function bindRealtimeButtons(){
+  document.querySelectorAll('.rt-toggle').forEach(btn=>{
+    if(rtToggleButtons.has(btn)) return;
+    rtToggleButtons.add(btn);
+    btn.addEventListener('click', ()=>{
+      setRealtime(!realTime);
+      if(servoModal && servoModal.classList.contains('show')){
+        realTime ? rtStartTicker() : rtStopTicker();
+      }
+    });
+    syncRealtimeButton(btn);
+  });
+}
 
 function resetBleRefs(){ bleDevice=null; bleServer=null; bleService=null; writeChar=null; notifyChar=null; }
 function setConnected(v){
   isConnected=v;
-  btnConnect.textContent=v?'해제':'연결';
+  btnConnect.textContent=v?'해제':'연결 ▾';
+  btnConnect.setAttribute('aria-expanded', 'false');
   btnRun.disabled=!v;
   dot.classList.toggle('on',v); dot.classList.toggle('off',!v);
   dot.textContent=v?'on':'off';
@@ -1283,20 +1307,47 @@ function setRunning(v){
 }
 function setRealtime(on){
   realTime=!!on;
-  btnRt.classList.toggle('on', realTime);
-  btnRt.textContent = realTime ? '실시간: ON' : '실시간: OFF';
+  bindRealtimeButtons();
+  rtToggleButtons.forEach(syncRealtimeButton);
 }
-btnRt.addEventListener('click', ()=>{
-  setRealtime(!realTime);
-  if(servoModal.classList.contains('show')){
-    realTime ? rtStartTicker() : rtStopTicker();
-  }
-});
 async function sendImmediate(s){
   if(!realTime) return;
   if(!writeChar) return;
   try{ await writeChar.writeValue(enc(s+'\n')); log('➡️ '+s); }
   catch(e){ console.error(e); log('⚠️ 전송 실패: '+e); }
+}
+
+if(btnNew){
+  btnNew.addEventListener('click', ()=>{
+    if(!confirm('현재 프로젝트를 모두 지우고 새로 만들까요?')) return;
+    try{
+      ws.clear();
+      multiServoConfigs.clear();
+      refreshCodeDebounced();
+      log('🆕 새 프로젝트');
+    }catch(e){ console.error(e); alert('새 프로젝트 생성 중 오류가 발생했습니다.'); }
+  });
+}
+if(btnCopy){
+  btnCopy.addEventListener('click', async()=>{
+    const text = (codeView?.textContent || '').trimEnd();
+    if(!text){ alert('복사할 코드가 없습니다.'); return; }
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+      }else{
+        const ta=document.createElement('textarea');
+        ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        if(ta.parentNode){ ta.parentNode.removeChild(ta); }
+      }
+      log('📋 코드 복사 완료');
+    }catch(err){
+      console.error(err);
+      alert('코드 복사에 실패했습니다. 브라우저 권한을 확인해 주세요.');
+    }
+  });
 }
 
 function onDisconnected(ev){
@@ -1486,7 +1537,8 @@ document.addEventListener('fullscreenchange', syncFSLabel);
 syncFSLabel();
 
 /* ================= 멀티 서보 설정 모달 구현 ================= */
-const servoModal = document.getElementById('servoModal');
+servoModal = document.getElementById('servoModal');
+setRealtime(realTime);
 const boardEl = document.getElementById('board');
 const stageEl = document.getElementById('boardStage');
 const addServoBtn = document.getElementById('addServoBtn');
@@ -2040,35 +2092,6 @@ async function loadProject(){
 (function(el){ if(el) el.addEventListener('click', saveProject); })(document.getElementById('saveBtn'));
 (function(el){ if(el) el.addEventListener('click', loadProject); })(document.getElementById('loadBtn'));
 
-/* === 파일 드롭다운 로직(새로만들기/저장하기/불러오기) === */
-(function(){
-  const btn  = document.getElementById('fileBtn');
-  const menu = document.getElementById('fileMenu');
-  if(!btn || !menu) return;
-  btn.addEventListener('click', (e)=>{ e.stopPropagation(); menu.classList.toggle('show'); menu.setAttribute('aria-hidden', menu.classList.contains('show')?'false':'true'); });
-  document.addEventListener('click', ()=>{ menu.classList.remove('show'); menu.setAttribute('aria-hidden','true'); });
-  menu.addEventListener('click', (e)=>{
-    const cmd = e.target && e.target.getAttribute('data-cmd');
-    if(!cmd) return;
-    if(cmd==='new'){
-      if(confirm('현재 프로젝트를 모두 지우고 새로 만들까요?')){
-        try{
-          ws.clear(); 
-          multiServoConfigs.clear && multiServoConfigs.clear();
-          refreshCodeDebounced && refreshCodeDebounced();
-          log && log('🆕 새 프로젝트');
-        }catch(_){}
-      }
-    }else if(cmd==='save'){
-      try{ saveProject && saveProject(); }catch(_){}
-    }else if(cmd==='load'){
-      try{ loadProject && loadProject(); }catch(_){}
-    }
-    menu.classList.remove('show'); menu.setAttribute('aria-hidden','true');
-  });
-})();
-
-
 /* === 서보 블록에 '다이얼' 버튼 추가 & 단독 다이얼 열기 === */
 function __xrobo_svg_text_btn(label){
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 30">
@@ -2516,6 +2539,9 @@ setTimeout(()=>document.addEventListener('click', closer, true), 0);
     if(!connectMenu) return;
     connectMenu.classList.toggle('show', !!show);
     connectMenu.setAttribute('aria-hidden', show ? 'false' : 'true');
+    if(connectBtn){
+      connectBtn.setAttribute('aria-expanded', show ? 'true' : 'false');
+    }
   }
   document.addEventListener('click', (e)=>{
     if(e.target.closest('#connectDropdown')) return;
