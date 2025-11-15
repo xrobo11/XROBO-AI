@@ -1,1 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XROBO AI</title>
+  <style>
+    :root {
+      --background: #0f172a;
+      --accent: #38bdf8;
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --card-hover: rgba(56, 189, 248, 0.2);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.18), transparent 50%),
+        var(--background);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 4vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    p.subtitle {
+      margin-top: 0.75rem;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+
+    main {
+      width: min(1100px, 92vw);
+      margin: auto;
+      padding-bottom: 3rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      --glow: rgba(56, 189, 248, 0.35);
+      --tag-color: #38bdf8;
+      --tag-bg: rgba(56, 189, 248, 0.12);
+      --tag-border: rgba(56, 189, 248, 0.35);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      min-height: 220px;
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      background: var(--card-bg);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      box-shadow: var(--shadow);
+      transition: transform 200ms ease, box-shadow 200ms ease, border 200ms ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(244, 114, 182, 0.1));
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 28px 50px rgba(15, 23, 42, 0.45);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card span.label {
+      position: relative;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      z-index: 1;
+    }
+
+    .card span.tag {
+      position: relative;
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--tag-color);
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      border-radius: 999px;
+      letter-spacing: 0.18em;
+      z-index: 1;
+    }
+
+    .card .glow {
+      position: absolute;
+      inset: 20% auto auto 20%;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, var(--glow), transparent 60%);
+      filter: blur(0.5px);
+      opacity: 0.75;
+      z-index: 0;
+    }
+
+    .card.live {
+      --glow: rgba(56, 189, 248, 0.4);
+      --tag-color: #38bdf8;
+      --tag-bg: rgba(56, 189, 248, 0.14);
+      --tag-border: rgba(56, 189, 248, 0.4);
+    }
+
+    .card.color {
+      --glow: rgba(249, 115, 22, 0.42);
+      --tag-color: #fb923c;
+      --tag-bg: rgba(251, 146, 60, 0.14);
+      --tag-border: rgba(251, 146, 60, 0.45);
+    }
+
+    .card.voice {
+      --glow: rgba(244, 114, 182, 0.42);
+      --tag-color: #f472b6;
+      --tag-bg: rgba(244, 114, 182, 0.14);
+      --tag-border: rgba(244, 114, 182, 0.45);
+    }
+
+    .card.gyro {
+      --glow: rgba(168, 85, 247, 0.42);
+      --tag-color: #c084fc;
+      --tag-bg: rgba(192, 132, 252, 0.16);
+      --tag-border: rgba(192, 132, 252, 0.45);
+    }
+
+    .card.ball {
+      --glow: rgba(52, 211, 153, 0.42);
+      --tag-color: #34d399;
+      --tag-bg: rgba(52, 211, 153, 0.16);
+      --tag-border: rgba(52, 211, 153, 0.45);
+    }
+
+    .card.line {
+      --glow: rgba(250, 204, 21, 0.42);
+      --tag-color: #facc15;
+      --tag-bg: rgba(250, 204, 21, 0.14);
+      --tag-border: rgba(250, 204, 21, 0.45);
+    }
+
+    .card.number {
+      --glow: rgba(96, 165, 250, 0.42);
+      --tag-color: #60a5fa;
+      --tag-bg: rgba(96, 165, 250, 0.14);
+      --tag-border: rgba(96, 165, 250, 0.45);
+    }
+
+    .card.hand {
+      --glow: rgba(251, 113, 133, 0.42);
+      --tag-color: #fb7185;
+      --tag-bg: rgba(251, 113, 133, 0.16);
+      --tag-border: rgba(251, 113, 133, 0.45);
+    }
+
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding-top: 2.5rem;
+      }
+
+      .card {
+        min-height: 180px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>XROBO AI</h1>
+    <p class="subtitle">다양한 AI 기능을 한 곳에서 탐험해 보세요</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <a class="card live" href="#live-coding">
+        <div class="glow"></div>
+        <span class="label">라이브 코딩</span>
+        <span class="tag">Live Coding</span>
+      </a>
+      <a class="card color" href="#color-detection">
+        <div class="glow"></div>
+        <span class="label">색상 감별</span>
+        <span class="tag">Color Vision</span>
+      </a>
+      <a class="card voice" href="#voice-command">
+        <div class="glow"></div>
+        <span class="label">음성 명령</span>
+        <span class="tag">Voice Control</span>
+      </a>
+      <a class="card gyro" href="#gyro-sensor">
+        <div class="glow"></div>
+        <span class="label">자이로 센서</span>
+        <span class="tag">Gyro Sensor</span>
+      </a>
+      <a class="card ball" href="#ball-tracking">
+        <div class="glow"></div>
+        <span class="label">공 따라가기</span>
+        <span class="tag">Ball Tracking</span>
+      </a>
+      <a class="card line" href="#line-following">
+        <div class="glow"></div>
+        <span class="label">라인 따라가기</span>
+        <span class="tag">Line Following</span>
+      </a>
+      <a class="card number" href="#number-cards">
+        <div class="glow"></div>
+        <span class="label">숫자 카드 읽기</span>
+        <span class="tag">Number Vision</span>
+      </a>
+      <a class="card hand" href="#hand-gesture">
+        <div class="glow"></div>
+        <span class="label">손 모양 감지</span>
+        <span class="tag">Hand Gesture</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>
