@@ -8,84 +8,236 @@
     :root {
       color-scheme: light;
       font-family: "Pretendard", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --surface: rgba(255, 255, 255, 0.9);
+      --shadow: rgba(15, 23, 42, 0.1);
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text-strong: #0f172a;
+      --text-muted: #475569;
+      --border: rgba(148, 163, 184, 0.35);
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(160deg, #eff6ff 0%, #fef3c7 100%);
+      padding: clamp(32px, 5vw, 64px) 20px;
+      background: radial-gradient(circle at top left, #dbeafe, transparent 55%),
+                  radial-gradient(circle at bottom right, #fef3c7, transparent 45%),
+                  linear-gradient(160deg, #eff6ff 0%, #fef3c7 100%);
     }
+
     main {
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
-      padding: 48px 56px;
-      width: min(480px, calc(100% - 48px));
+      width: min(1040px, 100%);
+      background: var(--surface);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px var(--shadow);
+      padding: clamp(32px, 4vw, 56px);
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: clamp(28px, 4vw, 48px);
+      backdrop-filter: blur(6px);
     }
-    h1 {
-      font-size: clamp(28px, 5vw, 36px);
-      margin: 0;
-      color: #0f172a;
-    }
-    p {
-      margin: 0;
-      line-height: 1.6;
-      color: #334155;
-      font-size: 17px;
-    }
-    .actions {
+
+    header {
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
-    .action-link {
+
+    h1 {
+      font-size: clamp(32px, 5vw, 44px);
+      margin: 0;
+      color: var(--text-strong);
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-size: clamp(16px, 2vw, 18px);
+    }
+
+    .actions {
+      display: grid;
+      gap: clamp(16px, 3vw, 24px);
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .action-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: clamp(18px, 2.6vw, 24px);
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.78));
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      box-shadow: 0 18px 32px rgba(15, 23, 42, 0.06);
+      min-height: 170px;
+    }
+
+    .action-card[data-primary="true"] {
+      background: linear-gradient(150deg, rgba(37, 99, 235, 0.94), rgba(59, 130, 246, 0.85));
+      color: #f8fafc;
+      border-color: rgba(37, 99, 235, 0.4);
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
+    }
+
+    .action-card[data-primary="true"] .badge {
+      background: rgba(15, 23, 42, 0.2);
+      color: #e0f2fe;
+    }
+
+    .action-card:hover,
+    .action-card:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+      border-color: rgba(37, 99, 235, 0.4);
+      outline: none;
+    }
+
+    .action-card:focus-visible {
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25), 0 24px 48px rgba(15, 23, 42, 0.12);
+    }
+
+    .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 24px;
-      font-size: 18px;
+      font-size: 26px;
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--primary);
+    }
+
+    .action-card[data-primary="true"] .icon {
+      background: rgba(15, 23, 42, 0.22);
+      color: #bfdbfe;
+    }
+
+    .title {
+      font-size: clamp(18px, 2.2vw, 20px);
       font-weight: 700;
-      cursor: pointer;
-      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .desc {
+      font-size: clamp(14px, 2vw, 15px);
+      line-height: 1.5;
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    .badge {
+      align-self: flex-start;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(71, 85, 105, 0.9);
+    }
+
+    footer a {
+      color: var(--primary);
       text-decoration: none;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      box-shadow: 0 14px 24px rgba(37, 99, 235, 0.3);
-      transition: transform .2s ease, box-shadow .2s ease;
+      font-weight: 600;
     }
-    .action-link:hover,
-    .action-link:focus-visible {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 36px rgba(37, 99, 235, 0.35);
-    }
-    .action-link:focus-visible {
-      outline: 3px solid rgba(59, 130, 246, 0.5);
-      outline-offset: 3px;
-    }
-    small {
-      color: #64748b;
-      font-size: 14px;
+
+    footer a:hover,
+    footer a:focus-visible {
+      text-decoration: underline;
+      outline: none;
     }
   </style>
 </head>
 <body>
   <main>
-    <div>
-      <h1>XROBO AI 컨트롤 센터</h1>
+    <header>
+      <h1>XROBO AI 컨트롤 허브</h1>
       <p>
-        업로드한 <strong>XROBO_LIVE_CODING</strong> 환경에서 바로 블록 코딩을 시작하려면 아래 버튼을 눌러 주세요.
+        XROBO 장치를 제어하고 교육용 콘텐츠를 탐색할 수 있는 중앙 허브입니다. 원하는 작업을 선택하여 바로 이동하세요.
       </p>
-    </div>
+    </header>
+
     <div class="actions">
-      <a class="action-link" href="./XROBO_LIVE_CODING.html" id="liveCodingBtn">라이브 코딩 열기</a>
-      <small>버튼을 누르면 새 창에서 라이브 코딩 인터페이스가 실행됩니다.</small>
+      <a class="action-card" data-primary="true" href="./XROBO_LIVE_CODING.html" target="_blank" rel="noopener">
+        <span class="badge">추천</span>
+        <span class="icon">🚀</span>
+        <span class="title">라이브 코딩 시작</span>
+        <span class="desc">실시간 블록 코딩 환경을 새 창에서 열어 로봇을 즉시 제어하세요.</span>
+      </a>
+
+      <a class="action-card" href="#device-guide">
+        <span class="icon">🔗</span>
+        <span class="title">장치 연결 가이드</span>
+        <span class="desc">BLE 연결 절차와 문제 해결 방법을 단계별 설명으로 확인합니다.</span>
+      </a>
+
+      <a class="action-card" href="#realtime-control">
+        <span class="icon">🧭</span>
+        <span class="title">실시간 제어 패널</span>
+        <span class="desc">로봇의 모터와 센서를 직접 조작할 수 있는 대시보드로 이동합니다.</span>
+      </a>
+
+      <a class="action-card" href="#project-library">
+        <span class="icon">📚</span>
+        <span class="title">프로젝트 라이브러리</span>
+        <span class="desc">예제 프로젝트와 수업 자료를 모아둔 컬렉션에서 아이디어를 얻어보세요.</span>
+      </a>
+
+      <a class="action-card" href="#save-load">
+        <span class="icon">💾</span>
+        <span class="title">저장 · 불러오기</span>
+        <span class="desc">작성한 블록 코드를 파일로 저장하거나 다시 불러오는 방법을 안내합니다.</span>
+      </a>
+
+      <a class="action-card" href="#servo-setup">
+        <span class="icon">⚙️</span>
+        <span class="title">서보 &amp; 액추에이터 설정</span>
+        <span class="desc">멀티 서보 구성을 비롯한 하드웨어 캘리브레이션 팁을 살펴보세요.</span>
+      </a>
+
+      <a class="action-card" href="#learning-roadmap">
+        <span class="icon">🧠</span>
+        <span class="title">학습 로드맵</span>
+        <span class="desc">학습자 수준별 추천 커리큘럼과 활동지를 다운로드할 수 있습니다.</span>
+      </a>
+
+      <a class="action-card" href="#support">
+        <span class="icon">💬</span>
+        <span class="title">지원 센터</span>
+        <span class="desc">문제가 생겼나요? 지원팀에 문의하고 최신 업데이트 소식을 받아보세요.</span>
+      </a>
     </div>
+
+    <footer>
+      <span>※ 상단 버튼은 순차적으로 콘텐츠가 연결될 예정입니다. 사용 중 궁금한 사항은 언제든지 문의하세요.</span>
+      <span>문의: <a href="mailto:support@xrobo.ai">support@xrobo.ai</a></span>
+    </footer>
   </main>
 </body>
 </html>
